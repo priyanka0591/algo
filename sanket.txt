@@ -1,0 +1,1000 @@
+﻿* Assignment 1 : Algo
+
+
+Vigener         
+#include <bits/stdc++.h>
+
+
+using namespace std;
+
+
+string generateKey(string message, string key) {
+    int x = key.length();
+    string result = "";
+    for (int i = 0;; i++) {
+        if (i%x == 0) {
+            i = 0;
+        }
+        if (result.length() == message.length()) {
+            break;
+        }
+        result = result + key[i];
+    }
+    return result;
+}
+
+
+string lowerToUpper(string message) {
+    string result = "";
+    for (int i = 0; i < message.length(); i++) {
+        if (islower(message[i])) {
+            result = result + char(message[i] - 32);
+        } else {
+            result = result + message[i];
+        }
+    }
+    return result;
+}
+
+
+string encryptMessage(string message, string key) {
+    string result = "";
+    for (int i = 0; i < message.length(); i++) {
+        int x = (message[i] + key[i]) % 26;
+        result = result + char(x + 'A');
+    }
+    return result;
+}
+
+
+string decryptMessage(string cipherText, string key) {
+    string result = "";
+    for (int i = 0; i < cipherText.length(); i++) {
+        int x = (cipherText[i] - key[i] + 26) % 26;
+        result = result + char(x + 'A');
+    }
+    return result;
+}
+
+
+int main() {
+    string message;
+    string key;
+    cout << "Enter key: ";
+    cin >> key;
+    cout << "Enter message want to encrypt: ";
+    cin >> message;
+    message = lowerToUpper(message);
+    key = generateKey(message, key);
+    key = lowerToUpper(key);
+    string cipherText = encryptMessage(message, key);
+    cout << "Message want to encrypt is: " << message << endl;
+    cout << "Encrypted message is: " << cipherText << endl;
+    string originalMessage = decryptMessage(cipherText, key);
+    cout << "Original decrypted message is: " << originalMessage << endl;
+    return 0;
+}
+
+
+
+
+Columnar:
+#include <iostream>
+#include <vector>
+using namespace std;
+
+
+string encrypt(const string &text, int key)
+{
+    // Calculate the number of rows needed
+    int num_rows = text.length() / key + (text.length() % key > 0);
+
+
+    // Create an empty grid
+    vector<vector<char>> grid(num_rows, vector<char>(key, ' '));
+
+
+    // Fill in the grid with characters from the text
+    int index = 0;
+    for (int i = 0; i < num_rows; ++i)
+    {
+        for (int j = 0; j < key; ++j)
+        {
+            if (index < text.length())
+            {
+                grid[i][j] = text[index];
+                index += 1;
+            }
+        }
+    }
+
+
+    // Read the grid column by column
+    string result = "";
+    for (int j = 0; j < key; ++j)
+    {
+        for (int i = 0; i < num_rows; ++i)
+        {
+            result += grid[i][j];
+        }
+    }
+
+
+    cout << result << endl;
+
+
+    return result;
+}
+
+
+string decrypt(const string &text, int key)
+{
+    // Calculate the number of rows needed
+    int num_rows = text.length() / key + (text.length() % key > 0);
+
+
+    // Calculate the number of incomplete rows
+    int incomplete_rows = key - (text.length() % key);
+
+
+    // Create an empty grid
+    vector<vector<char>> grid(num_rows, vector<char>(key, ' '));
+
+
+    // Fill in the grid with characters from the text
+    int index = 0;
+    for (int j = 0; j < key; ++j)
+    {
+        for (int i = 0; i < num_rows; ++i)
+        {
+            if (i == incomplete_rows && j >= text.length() % key)
+            {
+                grid[i][j] = ' ';
+            }
+            else
+            {
+                grid[i][j] = text[index];
+                index += 1;
+            }
+        }
+    }
+
+
+    // Read the grid row by row
+    string result = "";
+    for (int i = 0; i < num_rows; ++i)
+    {
+        for (int j = 0; j < key; ++j)
+        {
+            if (grid[i][j] != ' ')
+            {
+                result += grid[i][j];
+            }
+        }
+    }
+
+
+    return result;
+}
+
+
+int main()
+{
+    string plaintext = "COLUMNARTRANSPOSITION";
+    int key = 5;
+
+
+    // Encrypt the plaintext
+    string ciphertext = encrypt(plaintext, key);
+    cout << "Plaintext: " << plaintext << endl;
+    cout << "Ciphertext: " << ciphertext << endl;
+
+
+    // Decrypt the ciphertext
+    string decrypted_text = decrypt(ciphertext, key);
+    cout << "Decrypted Text: " << decrypted_text << endl;
+
+
+    return 0;
+}
+
+
+Rail :
+#include <iostream>
+#include <vector>
+
+
+using namespace std;
+
+
+int main()
+{
+    string plaintext;
+    cout << "Enter the plain text: ";
+    cin >> plaintext;
+
+
+    int key;
+    cout << "Enter the key: ";
+    cin >> key;
+
+
+    string ciphertext = "";
+    vector<vector<char>> grid(key, vector<char>(plaintext.length(), ' '));
+
+
+    bool forw = true;
+    int j = 0;
+    for (int i = 0; i < plaintext.size(); i++)
+    {
+        grid[j][i] = plaintext[i];
+        if (forw)
+        {
+            ++j;
+        }
+        else
+        {
+            --j;
+        }
+        if (j == 0 && !forw)
+        {
+            forw = !forw;
+        }
+        else if (j == key - 1 && forw)
+        {
+            forw = !forw;
+        }
+    }
+
+
+    for (const auto &row : grid)
+    {
+        for (char col : row)
+        {
+            cout << col << ' ';
+        }
+        cout << endl;
+    }
+
+
+    for (const auto &row : grid)
+    {
+        for (char col : row)
+        {
+            if (col != ' ')
+            {
+                ciphertext += col;
+            }
+        }
+    }
+
+
+    cout << "Cipher Text: " << ciphertext << endl;
+
+
+    grid = vector<vector<char>>(key, vector<char>(ciphertext.length(), '.'));
+
+
+    forw = true;
+    j = 0;
+    for (int i = 0; i < ciphertext.size(); i++)
+    {
+        grid[j][i] = '*';
+        if (forw)
+        {
+            ++j;
+        }
+        else
+        {
+            --j;
+        }
+        if (j == 0 && !forw)
+        {
+            forw = !forw;
+        }
+        else if (j == key - 1 && forw)
+        {
+            forw = !forw;
+        }
+    }
+
+
+    int k = 0;
+    for (int i = 0; i < grid.size(); i++)
+    {
+        for (int j = 0; j < grid[0].size(); j++)
+        {
+            if (grid[i][j] == '*')
+            {
+                grid[i][j] = ciphertext[k++];
+            }
+        }
+    }
+
+
+    cout << "Grid:" << endl;
+    for (const auto &row : grid)
+    {
+        for (char col : row)
+        {
+            cout << col << ' ';
+        }
+        cout << endl;
+    }
+
+
+    string decrypted_text = "";
+    for (int i = 0; i < ciphertext.length(); ++i)
+    {
+        for (int j = 0; j < key; ++j)
+        {
+            if (grid[j][i] != '.')
+            {
+                decrypted_text += grid[j][i];
+            }
+        }
+    }
+
+
+    cout << "Decrypted Text: " << decrypted_text << endl;
+
+
+    return 0;
+}
+
+
+Ceaser :
+
+
+#include <iostream>
+#include <cctype>
+
+
+using namespace std;
+
+
+string caesar_cipher(const string &text, int shift)
+{
+    string result = "";
+    for (char ch : text)
+    {
+        if (isalpha(ch))
+        {
+            bool is_upper = isupper(ch);
+            int ascii_code = static_cast<int>(ch);
+            int shifted_code = (ascii_code - static_cast<int>('A' + (is_upper ? 0 : 32)) + shift + 26) % 26;
+            char shifted_char = static_cast<char>(shifted_code + static_cast<int>('A' + (is_upper ? 0 : 32)));
+            result += shifted_char;
+        }
+        else
+        {
+            result += ch;
+        }
+    }
+    return result;
+}
+
+
+string encrypt_caesar(const string &plaintext, int shift_amount)
+{
+    return caesar_cipher(plaintext, shift_amount);
+}
+
+
+string decrypt_caesar(const string &ciphertext, int shift_amount)
+{
+    return caesar_cipher(ciphertext, -shift_amount);
+}
+
+
+int main()
+{
+    string plaintext;
+    cout << "Enter Plain Text: ";
+    cin >> plaintext;
+
+
+    int shift_amount;
+    cout << "Enter Shift Amount: ";
+    cin >> shift_amount;
+
+
+    cout << "Plaintext: " << plaintext << endl;
+
+
+    string ciphertext = encrypt_caesar(plaintext, shift_amount);
+    cout << "Ciphertext: " << ciphertext << endl;
+
+
+    string decrypted_text = decrypt_caesar(ciphertext, shift_amount);
+    cout << "Decrypted: " << decrypted_text << endl;
+
+
+    return 0;
+}
+
+
+Own:
+
+
+#include <bits/stdc++.h>
+
+
+using namespace std;
+vector < int > generateKey(int n) {
+    vector < int > result;
+    for (int i = 0; i < n; i++) {
+        result.push_back(rand() % 26);
+    }
+    return result;
+}
+
+
+vector < int > encryptMessage(string s, vector < int > key) {
+    vector < int > result;
+    for (int i = 0; i < s.length(); i++) {
+        if (i % 2 == 0) {
+            result.push_back(int(s[i]) + key[i]);
+        } else {
+            result.push_back(int(s[i]) - key[i]);
+        }
+    }
+    return result;
+}
+string decryptMessage(vector < int > cipherText, vector < int > key) {
+    string result = "";
+    for (int i = 0; i < cipherText.size(); i++) {
+        if (i % 2 == 0) {
+            result = result + char(cipherText[i] - key[i]);
+        } else {
+            result = result + char(cipherText[i] + key[i]);
+        }
+    }
+    return result;
+}
+int main() {
+    string s;
+    cout << "Enter message want to encrypt: ";
+    cin >> s;
+    vector < int > key = generateKey(s.length());
+    vector < int > cipherText = encryptMessage(s, key);
+    cout << "Cipher Text: ";
+    for (auto i: cipherText) {
+        cout << i;
+    }
+    cout << endl;
+
+
+    string originalMessage = decryptMessage(cipherText, key);
+    cout << "Decrypted message is: " << originalMessage << endl;
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+* Assignment 2 : RSA
+ 
+#include <bits/stdc++.h>
+
+
+using namespace std;
+long long int gcd(long long int a, long long int b) {
+    if (b == 0) {
+        return a;
+    }
+    return gcd(b, a % b);
+}
+
+
+long long int generatePublicKey(long long int phi) {
+    long long int e = 2;
+    while (e < phi) {
+        if (gcd(phi, e) == 1) {
+            return e;
+        }
+        e++;
+    }
+    return e;
+}
+
+
+long long int generatePrivateKey(long long int e, long long int phi) {
+    long long int d = 1;
+    while (1) {
+        if ((d * e) % phi == 1) {
+            return d;
+        }
+        d++;
+    }
+    return d;
+}
+
+
+
+
+long long int encryptMessage(long long int m, long long int e, long long int n) {
+    long long int result = 1;
+    for (int i = 1; i <= e; i++) {
+        result = result * m;
+        result = result % n;
+    }
+    return result % n;
+}
+
+
+long long int decryptMessage(long long int c, long long int d, long long int n) {
+    long long int result = 1;
+    for (int i = 1; i <= d; i++) {
+        result = result * c;
+        result = result % n;
+    }
+    return result % n;
+}
+
+
+int main() {
+    int p1, p2;
+    cout << "Enter prime number p1: ";
+    cin >> p1;
+    cout << "Enter prime number p2: ";
+    cin >> p2;
+    long long int n = p1 * p2;
+    long long int phi = (p1 - 1) * (p2 - 1);
+    long long int e = generatePublicKey(phi);
+    long long int d = generatePrivateKey(e, phi);
+    cout << "Enter number want to encrypt: ";
+    int message;
+    cin >> message;
+    long long int cipherText = encryptMessage(message, e, n);
+    cout << "Cipher Text: " << cipherText << endl;
+    long long int originalMessage = decryptMessage(cipherText, d, n);
+    cout << "Decrypted number: " << originalMessage << endl;
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+   
+*    Assignment 4 : MITMA
+   
+ #include <iostream>
+
+
+using namespace std;
+
+
+long long int modular_pow(long long int base, long long int exponent, long long int modulus) {
+    if (modulus == 1)
+        return 0;
+    long long int result = 1;
+    base = base % modulus;
+    while (exponent > 0) {
+        if (exponent % 2 == 1)
+            result = (result * base) % modulus;
+        exponent = exponent >> 1; // Equivalent to exponent /= 2
+        base = (base * base) % modulus;
+    }
+    return result;
+}
+int main() {
+    long long int p, g, a, b, c, d, x, y, xe, ye, ka, kb, kea, keb;
+    cout << "Enter a prime number (P): ";
+    cin >> p;
+    cout << "Enter a number (G): ";
+    cin >> g;
+    cout << endl;
+    cout << "Enter Alice's private number (a): ";
+    cin >> a;
+    cout << "Enter Bob's private number (b): ";
+    cin >> b;
+    cout << endl;
+    cout << "Enter Eve's selected private number for Bob from Alice (c): ";
+    cin >> c;
+    cout << "Enter Eve's selected private number for Alice from Bob (d): ";
+    cin >> d;
+    cout << endl;
+    x = modular_pow(g, a, p);
+    y = modular_pow(g, b, p);
+    cout << "Alice published key: " << x << endl;
+    cout << "Bob published key: " << y << endl;
+    xe = modular_pow(g, c, p);
+    ye = modular_pow(g, d, p);
+    cout << "Eve published value for Alice: " << xe << endl;
+    cout << "Eve published value for Bob: " << ye << endl;
+    ka = modular_pow(xe, a, p);
+    kea = modular_pow(x, c, p);
+    kb = modular_pow(ye, b, p);
+    keb = modular_pow(y, d, p);
+    cout << "Alice computed (S1): " << ka << endl;
+    cout << "Eve computed key for Alice (S1): " << kea << endl;
+    cout << "Bob computed (S2): " << kb << endl;
+    cout << "Eve computed key for Bob (S2): " << keb << endl;
+    return 0;
+}
+
+
+
+
+*    Assignment 5 : SHA 1  
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Scanner;
+
+
+public class SHA {
+    public static String hashData(String s) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-1");
+            System.out.println(Arrays.toString(s.getBytes()));
+            byte[] messageDigest = md.digest(s.getBytes());
+            System.out.println(Arrays.toString(messageDigest));
+            BigInteger no = new BigInteger(1, messageDigest);
+
+
+            return no.toString(16);
+
+
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter message: ");
+        String s = sc.nextLine();
+        System.out.println("Hashed value for " + s +  ": " +  hashData(s));
+    }
+}
+
+
+
+
+*    Assignment 6 : Digital signature 
+
+
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+
+public class SHARSA {
+    public static String hashData(String s) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-1");
+            byte[] messageDigest = md.digest(s.getBytes());
+            BigInteger no = new BigInteger(1,messageDigest);
+
+
+            return no.toString(16);
+
+
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public static long gcd(long a, long b) {
+        if(b == 0) {
+            return  a;
+        }
+        return gcd(b, a%b);
+    }
+
+
+    public static long generatePublicKey(long phi) {
+        long e = 2;
+        while(e < phi) {
+            if(gcd(phi, e) == 1) {
+                return e;
+            }
+            e++;
+        }
+        return e;
+    }
+
+
+    public static long generatePrivateKey(long e, long phi) {
+        long d = 0;
+        while (true) {
+            if ((d * e) % phi == 1) {
+                return d;
+            }
+            d++;
+        }
+    }
+
+
+    public static ArrayList<Long> encryptMessage(String m, long e, long n) {
+        ArrayList<Long> encryptMessage = new ArrayList<>();
+        for(int i=0; i<m.length(); i++) {
+            long result = 1;
+            for (int j = 1; j <= e; j++) {
+                result = (result * (int) m.charAt(i)) % n;
+            }
+            encryptMessage.add(result);
+        }
+        return encryptMessage;
+    }
+
+
+    public static String decryptMessage(ArrayList<Long> m, long d, long n) {
+        StringBuilder s = new StringBuilder();
+        for(int i=0; i<m.size(); i++) {
+            long result = 1;
+            for (int j = 1; j <= d; j++) {
+                result = (result * m.get(i)) % n;
+            }
+            s.append((char)(result % n));
+        }
+        return s.toString();
+    }
+
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter message: ");
+        String s = scanner.nextLine();
+        System.out.print("Enter prime number p1: ");
+        int p1 = scanner.nextInt();
+        System.out.print("Enter prime number p2: ");
+        int p2 = scanner.nextInt();
+        long n = (long) p1 * p2;
+        long phi = (long)(p1 - 1) * (p2 - 1);
+        long e = generatePublicKey(phi);
+        long d = generatePrivateKey(e, phi);
+        String messageDigest = hashData(s);
+        System.out.println("Hashed value for " + s + ": " + messageDigest);
+        s = s + messageDigest;
+        ArrayList<Long> encryptMsg = encryptMessage(s, d, n);
+        String decryptMsg = decryptMessage(encryptMsg, e, n);
+//        System.out.println(encryptMsg.toString());
+//        System.out.println(decryptMsg);
+        System.out.print("Encrypted Message: ");
+        for(int i=0; i<encryptMsg.size(); i++) {
+            System.out.print(encryptMsg.get(i));
+        }
+        StringBuilder decryptedMessage = new StringBuilder();
+        StringBuilder decryptedHash = new StringBuilder();
+        for(int i=0; i<decryptMsg.length(); i++) {
+            if(i < (decryptMsg.length() - 40)) {
+                decryptedMessage.append(decryptMsg.charAt(i));
+            }
+            else {
+                decryptedHash.append(decryptMsg.charAt(i));
+            }
+        }
+        System.out.print("\n");
+        System.out.println("Decrypted Message: " + decryptedMessage);
+        System.out.println("Decrypted Hash: " + decryptedHash);
+        String generatedHash = hashData(decryptedMessage.toString());
+        if(generatedHash.contentEquals(decryptedHash)) {
+            System.out.println("Message has not been altered");
+        }
+        else {
+            System.out.println("Message has been altered");
+        }
+    }
+}
+
+
+* Assignment 7 : Elgamal
+import java.util.Random;
+import java.util.Scanner;
+
+
+public class Elgamal {
+    public static long compute(long multiplier, long times, long mod) {
+        long result = 1;
+        for (long i = 1; i <= times; i++) {
+            result = (result * multiplier) % mod;
+        }
+        return result % mod;
+    }
+
+
+    public static long gcd(long a, long b) {
+        if (b == 0) {
+            return a;
+        }
+        return gcd(b, a % b);
+    }
+
+
+    public static long calculateRandomIntegerForSignature(long q) {
+        long k = 1;
+        while (k <= q - 1) {
+            if (gcd(q - 1, k) == 1) {
+                return k;
+            }
+            k++;
+        }
+        return k;
+    }
+
+
+//    private static long computeS1(long alp)
+    private static long calculateMultiplicativeInverse(long k, long mod) {
+        long result = 1;
+        while((result * k) % mod != 1) {
+            result++;
+        }
+        return result;
+    }
+
+
+    public static void verifySignature(long alpha, long m, long q, long s1, long s2, long ya) {
+        long v1 = compute(alpha, m, q);
+        long v2 = (compute(ya, s1, q) * compute(s1, s2, q)) % q;
+        if(v1 == v2) {
+            System.out.print("Signature is valid");
+        }
+        else {
+            System.out.print("Signature is not valid");
+        }
+    }
+
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter prime number q: ");
+        long q = sc.nextLong();
+        System.out.print("Enter value of alpha (primitive modulo root of q): ");
+        long alpha = sc.nextLong();
+        long xa = new Random().nextLong(q - 2);
+        long ya = compute(alpha, xa, q);
+        System.out.println("A's private key: {" + xa + "}");
+        System.out.printf("A's public key: {%d, %d, %d} %n", q, alpha, ya);
+        System.out.print("Enter the hash value m (0 <= m <= q-1) : ");
+        long m = sc.nextLong();
+        long k = calculateRandomIntegerForSignature(q);
+        long s1 = compute(alpha, k, q);
+        long mik = calculateMultiplicativeInverse(k, q-1);
+        long s2 = (mik * (m - xa * s1)) % (q-1);
+        while(s2 <= 0) {
+            s2 = s2 + (q - 1);
+        }
+        System.out.printf("Digital signature : {%d, %d} %n", s1, s2);
+        verifySignature(alpha, m, q, s1, s2, ya);
+    }
+}
+
+
+
+
+* Assignment 8 : Image encryption
+
+
+pip install opencv-python 
+
+
+import cv2
+import numpy as np
+from numpy import random
+
+
+#Load original image
+demo = cv2.imread("/content/cat.jpg")
+r, c, t = demo.shape
+
+
+#Create random key
+key = random.randint(256, size = (r, c, t))
+
+
+#Encryption
+enc = demo ^ key
+
+
+#decryption
+dec = enc ^ key
+cv2.imwrite("encrypted.jpg", enc)
+cv2.imwrite("decrypted.jpg", dec)
+cv2.imwrite("key.png", key)
+
+
+
+
+Server
+
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.Scanner;
+
+
+public class ServerClass {
+
+
+    public static void main(String[] args) {
+        try (ServerSocket serverSocket = new ServerSocket(5000)) {
+            Socket socket = serverSocket.accept();
+            System.out.println("Client Connected----");
+            BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
+
+
+            while (true) {
+                String echoString = input.readLine();
+                System.out.println("Client: " + echoString);
+                if(echoString.equals("exit")) {
+                    break;
+                }
+//                output.println("Echo from server: " + echoString);
+                Scanner sc = new Scanner(System.in);
+                System.out.print("Enter message to send to the client: ");
+                String serverInput = sc.nextLine();
+                output.println(serverInput);
+            }
+        } catch (IOException e) {
+            System.out.println("Server exception: " + e.getMessage());
+        }
+    }
+}
+
+
+Client
+
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.Scanner;
+
+
+public class ClientClass {
+    public static void main(String[] args) {
+        try(Socket socket = new Socket("localhost", 5000)) {
+            BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
+
+
+            Scanner scanner = new Scanner(System.in);
+            String echoString;
+            String response;
+
+
+            do {
+                System.out.print("Enter message to send to server: ");
+                echoString = scanner.nextLine();
+                output.println(echoString);
+                if(!echoString.equals("exit")) {
+                    response = input.readLine();
+                    System.out.println("Server: " + response);
+                }
+            } while (!echoString.equals("exit"));
+
+
+        } catch (IOException e) {
+            System.out.println("Client Error: " + e.getMessage());
+        }
+    }
+}
