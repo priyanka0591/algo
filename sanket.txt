@@ -487,6 +487,7 @@ int main() {
 
 
 using namespace std;
+
 long long int gcd(long long int a, long long int b) {
     if (b == 0) {
         return a;
@@ -518,26 +519,31 @@ long long int generatePrivateKey(long long int e, long long int phi) {
     return d;
 }
 
-
-
-
-long long int encryptMessage(long long int m, long long int e, long long int n) {
+long long int compute(long long int multiplier, long long int times, long long int mod) {
     long long int result = 1;
-    for (int i = 1; i <= e; i++) {
-        result = result * m;
-        result = result % n;
+    for(long long int i=0; i<times; i++) {
+        result = (result * multiplier) % mod;
     }
-    return result % n;
+    return result % mod;
 }
 
 
-long long int decryptMessage(long long int c, long long int d, long long int n) {
-    long long int result = 1;
-    for (int i = 1; i <= d; i++) {
-        result = result * c;
-        result = result % n;
+vector<long long int> encryptMessage(string m, long long int e, long long int n) {
+    vector<long long int> cipherText;
+    for(int i=0; i<m.length(); i++) {
+        cipherText.push_back(compute(int(m[i]), e, n));
     }
-    return result % n;
+    return cipherText;
+}
+
+
+string decryptMessage(vector<long long int> cipherText, long long int d, long long int n) {
+    string result = "";
+    
+    for (int i = 0; i < cipherText.size(); i++) {
+        result = result + char(compute(cipherText[i], d, n));
+    }
+    return result;
 }
 
 
@@ -551,16 +557,24 @@ int main() {
     long long int phi = (p1 - 1) * (p2 - 1);
     long long int e = generatePublicKey(phi);
     long long int d = generatePrivateKey(e, phi);
-    cout << "Enter number want to encrypt: ";
-    int message;
-    cin >> message;
-    long long int cipherText = encryptMessage(message, e, n);
-    cout << "Cipher Text: " << cipherText << endl;
-    long long int originalMessage = decryptMessage(cipherText, d, n);
-    cout << "Decrypted number: " << originalMessage << endl;
+    // cout << "Enter number want to encrypt: ";
+    cout<<"Enter message want to encrypt: ";
+    string m;
+    cin>>m;
+    // int message;
+    // cin >> message;
+    // long long int cipherText = encryptMessage(message, e, n);
+    vector<long long int> cipherText = encryptMessage(m, e, n);
+    string decrypt = decryptMessage(cipherText, d, n);
+    cout << "Cipher Text: ";
+    for(int i=0; i<cipherText.size(); i++) {
+        cout<<cipherText[i];
+    }
+    cout<<endl;
+    // long long int originalMessage = decryptMessage(cipherText, d, n);
+    cout << "Decrypted message: " << decrypt << endl;
     return 0;
 }
-
 
 
 
